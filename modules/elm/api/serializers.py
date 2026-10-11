@@ -48,4 +48,5 @@ class ApplyInputSerializer(serializers.Serializer):
 
 class DecisionInputSerializer(serializers.Serializer):
     approve = serializers.BooleanField()
-    remarks = serializers.CharField(max_length=2000, required=False, blank=True)
+    remarks = serializers.CharField(max_length=2000, required=False, allow_blank=True)
+
