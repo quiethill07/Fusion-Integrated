@@ -28,6 +28,7 @@ class LeaveApplicationSerializer(serializers.ModelSerializer):
             "leave_type",
             "start_date",
             "end_date",
+            "half_day_period",
             "days",
             "reason",
             "status",
@@ -44,7 +45,14 @@ class ApplyInputSerializer(serializers.Serializer):
     start_date = serializers.DateField()
     end_date = serializers.DateField()
     reason = serializers.CharField(max_length=2000)
-
+    half_day_period = serializers.ChoiceField(
+        choices=[
+            ("FIRST_HALF", "First Half"),
+            ("SECOND_HALF", "Second Half"),
+        ],
+        required=False,
+        default="",
+    )
 
 class DecisionInputSerializer(serializers.Serializer):
     approve = serializers.BooleanField()

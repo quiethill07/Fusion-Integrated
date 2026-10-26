@@ -15,7 +15,6 @@ NAV_ITEMS = [
     {"code": "leave.mine", "label": "My Applications", "icon": "ListChecks", "to": "/leave/mine", "required_permission": "leave_elm.application.view", "sort_order": 20},
     {"code": "leave.balance", "label": "Leave Balance", "icon": "Scales", "to": "/leave/balance", "required_permission": "leave_elm.balance.view", "sort_order": 30},
     {"code": "leave.approvals", "label": "Approvals", "icon": "UserCheck", "to": "/leave/approvals", "required_permission": "leave_elm.application.approve", "sort_order": 50},
-    {"code": "leave.types", "label": "Leave Types", "icon": "Gear", "to": "/leave/types", "required_permission": "leave_elm.policy.manage", "sort_order": 60},
 ]
 
 #: Every permission this module recognises; ROLE_GRANTS below says who holds each.
@@ -24,16 +23,21 @@ PERMISSIONS = [
     ("leave_elm.application.apply", "Apply for leave"),
     ("leave_elm.application.approve", "Approve leave applications"),
     ("leave_elm.balance.view", "View leave balances"),
-    ("leave_elm.policy.manage", "Manage leave policies"),
 ]
 
 #: Performed by a service or a scheduled task, so no designation holds them.
 SYSTEM_PERMISSIONS = []
 
-_EMPLOYEE = ["leave_elm.application.view", "leave_elm.balance.view"]
+_EMPLOYEE = [
+    "leave_elm.application.view",
+    "leave_elm.application.apply",
+    "leave_elm.balance.view",
+]
 _LEAVE_APPROVER = ["leave_elm.application.view", "leave_elm.application.approve", "leave_elm.balance.view"]
-_LEAVE_ADMIN = ["leave_elm.application.view", "leave_elm.balance.view", "leave_elm.policy.manage"]
-
+_LEAVE_ADMIN = [
+    "leave_elm.application.view",
+    "leave_elm.balance.view",
+]
 #: Keyed by the role name as it exists in globals_designation.
 ROLE_GRANTS = {
     "Employee": _EMPLOYEE,

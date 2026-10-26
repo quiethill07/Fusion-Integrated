@@ -31,6 +31,15 @@ class LeaveApplication(TimeStampedModel):
     leave_type = models.ForeignKey("LeaveType", on_delete=models.CASCADE)
     start_date = models.DateField()
     end_date = models.DateField()
+    half_day_period = models.CharField(
+        max_length=16,
+        choices=[
+            ("FIRST_HALF", "First Half"),
+            ("SECOND_HALF", "Second Half"),
+        ],
+        blank=True,
+        default="",
+    )
     days = models.DecimalField(max_digits=10, decimal_places=2)
     reason = models.TextField()
     status = models.CharField(max_length=16, choices=[("DRAFT", "Draft"), ("SUBMITTED", "Submitted"), ("APPROVED", "Approved"), ("REJECTED", "Rejected"), ("CANCELLED", "Cancelled")], default="DRAFT")

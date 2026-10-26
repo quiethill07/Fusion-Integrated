@@ -11,6 +11,10 @@ from modules.elm.api.serializers import (
     ApplyInputSerializer,
     DecisionInputSerializer,
 )
+from django.utils import timezone
+from core.api.exceptions import BadRequestError
+from modules.elm.models import LeaveType, LeaveBalance, LeaveApplication
+
 
 class LeaveTypeListView(APIView):
     permission_classes = [IsAuthenticated, HasPermission("leave_elm.application.view")]
@@ -27,7 +31,9 @@ class MyApplicationsView(APIView):
 
     @extend_schema(responses=LeaveApplicationSerializer(many=True))
     def get(self, request):
-        applications = LeaveApplication.objects.filter(employee_id=request.user.user_id).order_by("-created_at")
+        applications = LeaveApplication.objects.filter(
+            employee_id=request.user.user_id
+        ).order_by("-created_at")
         serializer = LeaveApplicationSerializer(applications, many=True)
         return Response(serializer.data)
 
@@ -35,7 +41,16 @@ class MyApplicationsView(APIView):
     def post(self, request):
         serializer = ApplyInputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        application = services.apply(request.user, serializer.validated_data["leave_type"], serializer.validated_data["start_date"], serializer.validated_data["end_date"], serializer.validated_data["reason"])
+
+        application = services.apply(
+            request.user,
+            serializer.validated_data["leave_type"],
+            serializer.validated_data["start_date"],
+            serializer.validated_data["end_date"],
+            serializer.validated_data["reason"],
+            serializer.validated_data.get("half_day_period", ""),
+        )
+
         return Response(LeaveApplicationSerializer(application).data, status=201)
 
 
@@ -44,7 +59,11 @@ class PendingApprovalsView(APIView):
 
     @extend_schema(responses=LeaveApplicationSerializer(many=True))
     def get(self, request):
-        applications = LeaveApplication.objects.filter(status="SUBMITTED").exclude(employee_id=request.user.user_id).order_by("created_at")
+        applications = (
+            LeaveApplication.objects.filter(status="SUBMITTED")
+            .exclude(employee_id=request.user.user_id)
+            .order_by("created_at")
+        )
         serializer = LeaveApplicationSerializer(applications, many=True)
         return Response(serializer.data)
 
@@ -56,7 +75,12 @@ class DecideView(APIView):
     def post(self, request, pk):
         serializer = DecisionInputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        application = services.decide(request.user, pk, serializer.validated_data["approve"], serializer.validated_data.get("remarks", ""))
+        application = services.decide(
+            request.user,
+            pk,
+            serializer.validated_data["approve"],
+            serializer.validated_data.get("remarks", ""),
+        )
         return Response(LeaveApplicationSerializer(application).data)
 
 
@@ -90,6 +114,9 @@ class MyBalanceView(APIView):
             year = int(year)
         except (TypeError, ValueError):
             raise BadRequestError("year must be a number.", code="invalid_filter")
-        balances = LeaveBalance.objects.filter(employee_id=request.user.user_id, year=year)
+
+        balances = LeaveBalance.objects.filter(
+            employee_id=request.user.user_id, year=year
+        )
         serializer = LeaveBalanceSerializer(balances, many=True)
         return Response(serializer.data)
